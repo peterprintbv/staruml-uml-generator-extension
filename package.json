@@ -1,0 +1,17 @@
+{
+  "name": "staruml.php-docs-generator",
+  "title": "PHP Docs Generator",
+  "description": "PHP Docs generator",
+  "homepage": "https://github.com/elandlord/staruml-php-docs-generator",
+  "version": "1.0.0",
+  "keywords": ["docs"],
+  "author": {
+    "name": "Eric Landheer",
+    "email": "ericlandheer95@gmail.com",
+    "url": "https://github.com/elandlord"
+  },
+  "license": "MIT",
+  "engines": {
+    "staruml": ">=3.0.0"
+  }
+}

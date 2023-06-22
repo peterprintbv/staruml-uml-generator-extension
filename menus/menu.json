@@ -1,0 +1,14 @@
+{
+  "menu": [
+    {
+      "id": "tools",
+      "submenu": [
+        {
+          "id": "docs-generator",
+          "label": "Generate docs",
+          "command": "docs:generate"
+        }
+      ]
+    }
+  ]
+}
