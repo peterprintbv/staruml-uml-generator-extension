@@ -1,13 +1,9 @@
-const PathHelper = require('./path-helper');
-
-const fs = require('fs');
-const path = require('path');
-
 class UmlElement {
     static TYPE_MODEL = 'UMLModel';
     static TYPE_CLASS = 'UMLClass';
     static TYPE_PACKAGE = 'UMLPackage';
-    static TYPE_OPERATION = 'UMLPackage';
+    static TYPE_OPERATION = 'UMLOperation';
+    static TYPE_PARAMETER = 'UMLParameter';
     static TYPE_ATTRIBUTE = 'UMLPackage';
 
     static availableTypes = [
@@ -15,6 +11,7 @@ class UmlElement {
         UmlElement.TYPE_CLASS,
         UmlElement.TYPE_PACKAGE,
         UmlElement.TYPE_OPERATION,
+        UmlElement.TYPE_PARAMETER,
         UmlElement.TYPE_ATTRIBUTE
     ];
 
@@ -22,6 +19,8 @@ class UmlElement {
     name = '';
     id = '';
     type = UmlElement.TYPE_PACKAGE;
+
+    parameterType = null;
 
     /**
      * @type {UmlElement[]}
@@ -39,12 +38,24 @@ class UmlElement {
     operations = [];
 
     /**
+     * @type {UmlElement[]}
+     */
+    parameters = [];
+
+    /**
      * @param {String} parentId
      * @param {String} name
      * @param {String} type
      * @param {String|null} id
+     * @param {String|null} parameterType
      */
-    constructor(parentId, name, type = UmlElement.TYPE_PACKAGE, id = null) {
+    constructor(
+        parentId,
+        name,
+        type = UmlElement.TYPE_PACKAGE,
+        id = null,
+        parameterType = null,
+    ) {
         if ( !UmlElement.availableTypes.includes(type)) {
             throw new Error(`Given type: ${type} is not a valid type.`);
         }
@@ -56,6 +67,7 @@ class UmlElement {
         this.parentId = parentId;
         this.name = name;
         this.type = type;
+        this.parameterType = parameterType;
         this.id = id;
     }
 
@@ -72,6 +84,20 @@ class UmlElement {
      */
     addOwnedElement(element) {
         this.ownedElements.push(element);
+    }
+
+    /**
+     * @param {UmlElement} element
+     */
+    addOperation(element) {
+        this.operations.push(element);
+    }
+
+    /**
+     * @param {UmlElement} element
+     */
+    addParameters(element) {
+        this.parameters.push(element);
     }
 
     toJSON() {
@@ -97,6 +123,14 @@ class UmlElement {
 
         if (this.operations.length > 0) {
             defaultObject.operations = this.operations;
+        }
+
+        if (this.parameters.length > 0) {
+            defaultObject.parameters = this.parameters;
+        }
+
+        if (this.parameterType !== null) {
+            defaultObject.type = this.parameterType;
         }
 
         return defaultObject;

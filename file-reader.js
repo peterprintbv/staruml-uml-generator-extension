@@ -98,6 +98,32 @@ class FileReader {
             FileReader.addToGroup(subGroup, filePath);
         }
     }
+
+    /**
+     * @param {String} fileContent
+     * @returns {string}
+     */
+    static extractClassNameFromFileContent(fileContent) {
+        const classnameRegex = /class\s+(\w+)/;
+        const classnameMatch = fileContent.match(classnameRegex);
+        return classnameMatch ? classnameMatch[1] : '';
+    }
+
+    /**
+     * @param {String} fileContent
+     * @returns {*[]}
+     */
+    static extractFunctionsFromFileContent(fileContent) {
+        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
+        const functions = [];
+        let match;
+        while ((match = functionRegex.exec(fileContent)) !== null) {
+            const [, docBlock, visibility, isStatic, name, parameters, returnType] = match;
+            const documentation = docBlock.trim();
+            functions.push({ name, parameters, returnType, visibility, isStatic, documentation });
+        }
+        return functions;
+    }
 }
 
 module.exports = FileReader;

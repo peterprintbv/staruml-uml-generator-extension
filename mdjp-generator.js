@@ -1,3 +1,4 @@
+const FileReader = require('./file-reader')
 const PathHelper = require('./path-helper')
 const UmlElement = require('./uml-element')
 const fs = require('fs');
@@ -79,6 +80,41 @@ class MDJPGenerator {
             const {directory, files} = file;
             element.addOwnedElement(MDJPGenerator.buildElementForFile(directory, files, element));
         });
+
+        if (stats.isFile()) {
+            try {
+                const fileContent = fs.readFileSync(directory, 'utf8');
+
+                const className = FileReader.extractClassNameFromFileContent(fileContent);
+                const functions = FileReader.extractFunctionsFromFileContent(fileContent);
+
+                functions.forEach((functionType) => {
+                    const operation = new UmlElement(element.id, functionType.name, UmlElement.TYPE_OPERATION);
+
+                    const parameters = functionType.parameters.split(',');
+
+                    parameters.forEach((parameter) => {
+                        let [type, name] = parameter.split(' ').filter((param) => param !== '');
+
+                        if (name === undefined) {
+                            name = type;
+                            type = null;
+                        }
+
+                        if (name === undefined && type === null) {
+                            return;
+                        }
+
+                        operation.addParameters(new UmlElement(operation.id, name, UmlElement.TYPE_OPERATION, null, type));
+                    });
+
+                    element.addOperation(operation);
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
         return element;
     }
