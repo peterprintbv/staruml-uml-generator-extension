@@ -2,7 +2,6 @@ const FileReader = require('./file-reader')
 const PathHelper = require('./path-helper')
 const UmlElement = require('./uml-element')
 const fs = require('fs');
-const path = require('path');
 
 class MDJPGenerator {
     static extensionsFolder = 'PeterPrint';
@@ -16,40 +15,149 @@ class MDJPGenerator {
             return MDJPGenerator.buildElementForFile(directory, files);
         });
 
-        elements.forEach((element) => MDJPGenerator.generateFile(element));
     }
 
     /**
-     * @param {UmlElement} element
+     * @param {*} options
+     * @param {Function} callback
+     * @returns {*}
      */
-    static generateFile(element)
+    static createModelFromOptions(options, callback)
     {
-        if (element.type === UmlElement.TYPE_CLASS) {
-            return;
+        return app.factory.createModel({
+            ...options,
+            modelInitializer: callback
+        });
+    }
+
+    /**
+     * @param {String[]} files
+     */
+    static handleFiles(files, parentElement)
+    {
+        files.forEach((file) => {
+            const {directory, files} = file;
+            MDJPGenerator.buildElementForFile(directory, files, parentElement);
+        });
+    }
+
+    /**
+     * Handles a file from filePath and parentElement. Reads the content, extracts functions and class properties.
+     * Elements are created dynamically based on the functions and properties the file contains.
+     *
+     * @param {String} filePath
+     * @param {*} parentElement
+     */
+    static handleFile(filePath, parentElement)
+    {
+        try {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const functions = FileReader.extractFunctionsFromFileContent(fileContent);
+            MDJPGenerator.handleOperations(functions, parentElement);
+
+            const classProperties = FileReader.extractClassPropertiesFromFileContent(fileContent);
+            MDJPGenerator.handleClassProperties(classProperties, parentElement);
+        } catch (err) {
+            app.showErrorDialog.error(err);
         }
+    }
 
-        const outputDirectory = '/Users/eric/Documents/Docs';
+    /**
+     * Handles the attributes and create Attributes model from options. Sets the Operation as parent.
+     * @param {*[]} classProperties
+     * @param {*} parentElement
+     */
+    static handleClassProperties(classProperties, parentElement)
+    {
+        classProperties.forEach((property) => {
+            MDJPGenerator.createModelFromOptions({
+                id: UmlElement.TYPE_ATTRIBUTE,
+                parent: parentElement,
+                field: UmlElement.ATTRIBUTES,
+            }, (elem) => {
+                elem.name = property.name;
+                elem.visibility = property.visibility;
+                elem.type = property.type;
+                elem.isStatic = property.isStatic;
+            });
+        });
+    }
 
-        let directoryPath = PathHelper.buildStarUmlDocsDirectoryForDirectory(element.name);
-        const fileName = directoryPath.splice(-1) + '.mdjps';
+    /**
+     * Handles the operation and create Operations model from options. Sets the Model/Package as parent.
+     *
+     * @param {*[]} functions
+     * @param {*} parentElement
+     */
+    static handleOperations(functions, parentElement)
+    {
+        functions.forEach((functionType) => {
+            const operation = MDJPGenerator.createModelFromOptions({
+                id: UmlElement.TYPE_OPERATION,
+                parent: parentElement,
+                field: UmlElement.OPERATIONS,
+            }, (elem) => {
+                elem.name = PathHelper.getCurrentDirectory(functionType.name);
+                elem.visibility = functionType.visibility;
+                elem.isStatic = functionType.isStatic;
+                elem.documentation = functionType.documentation;
+            });
 
-        directoryPath = outputDirectory + '/' + directoryPath.join('/');
-        const filePath = path.join(directoryPath, fileName);
+            MDJPGenerator.handleParameters(functionType.parameters.split(','), operation);
 
-        if (!fs.existsSync(directoryPath)) {
-            fs.mkdirSync(directoryPath, { recursive: true });
-        }
-
-        const content = JSON.stringify(element, null, "\t");
-        fs.writeFile(filePath, content, (error) => {
-            if (error) {
-                console.error('Error writing to file:', error);
-            } else {
-                console.log('Content written to file successfully.');
+            if (functionType.returnType !== undefined) {
+                MDJPGenerator.createModelFromOptions({
+                    id: UmlElement.TYPE_PARAMETER,
+                    parent: operation,
+                    field: UmlElement.PARAMETERS,
+                    }, (elem) => {
+                        elem.name = 'Return';
+                        elem.type = functionType.returnType;
+                        elem.direction = 'return';
+                    }
+                );
             }
         });
+    }
 
-        element.ownedElements.forEach((ownedElement) => MDJPGenerator.generateFile(ownedElement));
+    /**
+     * @param {String[]} parameters
+     * @param {*} operationElement
+     */
+    static handleParameters(parameters, operationElement)
+    {
+        parameters.forEach((parameter) => {
+            let [type, name] = parameter.split(' ').filter((param) => param !== '');
+
+            if (name === undefined) {
+                name = type;
+                type = null;
+            }
+
+            if (name === undefined && type === null) {
+                return;
+            }
+
+            name = name.replace('$', '');
+
+            MDJPGenerator.createModelFromOptions({
+                id: UmlElement.TYPE_PARAMETER,
+                parent: operationElement,
+                field: UmlElement.PARAMETERS,
+            }, (elem) => {
+                elem.name = name;
+                elem.type = type;
+            });
+        });
+    }
+
+    /**
+     * @returns {*}
+     */
+    static getActiveModel()
+    {
+        const project = app.project.getProject();
+        return project.ownedElements.find((element) => element.name === MDJPGenerator.extensionsFolder);
     }
 
     /**
@@ -58,67 +166,40 @@ class MDJPGenerator {
      * @param {UmlElement|null} parentElement
      * @returns {UmlElement}
      */
-    static buildElementForFile(directory, files, parentElement = null) {
-        let parentId = UmlElement.generateId();
+    static buildElementForFile(directory, files, parentElement = null)
+    {
+        const activeModel = MDJPGenerator.getActiveModel();
+
         const stats = fs.statSync(directory);
+        const isDirectory = stats.isDirectory();
+        let name = PathHelper.getCurrentDirectory(directory);
 
         let type = UmlElement.TYPE_CLASS;
 
-        if (stats.isDirectory()) {
+        if (isDirectory) {
             type = UmlElement.TYPE_PACKAGE;
+        } else {
+            name = name.replace('.php', '');
         }
 
-        if (parentElement !== null) {
-            parentId = parentElement.id;
-        } else {
+        if (parentElement === null) {
+            parentElement = activeModel;
             type = UmlElement.TYPE_MODEL;
         }
 
-        const element = new UmlElement(parentId, directory, type);
-
-        files.forEach((file) => {
-            const {directory, files} = file;
-            element.addOwnedElement(MDJPGenerator.buildElementForFile(directory, files, element));
+        const element = MDJPGenerator.createModelFromOptions({
+            id: type,
+            parent: parentElement,
+        }, (elem) => {
+            elem.name = name;
         });
 
+        this.handleFiles(files, element);
+
         if (stats.isFile()) {
-            try {
-                const fileContent = fs.readFileSync(directory, 'utf8');
-
-                const className = FileReader.extractClassNameFromFileContent(fileContent);
-                const functions = FileReader.extractFunctionsFromFileContent(fileContent);
-
-                functions.forEach((functionType) => {
-                    const operation = new UmlElement(element.id, functionType.name, UmlElement.TYPE_OPERATION);
-
-                    const parameters = functionType.parameters.split(',');
-
-                    parameters.forEach((parameter) => {
-                        let [type, name] = parameter.split(' ').filter((param) => param !== '');
-
-                        if (name === undefined) {
-                            name = type;
-                            type = null;
-                        }
-
-                        if (name === undefined && type === null) {
-                            return;
-                        }
-
-                        operation.addParameters(new UmlElement(operation.id, name, UmlElement.TYPE_OPERATION, null, type));
-                    });
-
-                    element.addOperation(operation);
-                });
-
-            } catch (err) {
-                console.error(err);
-            }
+            this.handleFile(directory, element);
         }
-
-        return element;
     }
-
 }
 
 module.exports = MDJPGenerator;

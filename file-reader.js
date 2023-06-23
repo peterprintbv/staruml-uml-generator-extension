@@ -113,6 +113,21 @@ class FileReader {
      * @param {String} fileContent
      * @returns {*[]}
      */
+    static extractClassPropertiesFromFileContent(fileContent) {
+        const propertyRegex = /(private|protected|public)\s+(static)?\s*\??([\w|\\]+)\s+\$([\w]+)/g;
+        const properties = [];
+        let match;
+        while ((match = propertyRegex.exec(fileContent)) !== null) {
+            const [, visibility, isStatic, propertyType, propertyName] = match;
+            properties.push({ visibility, isStatic: !!isStatic, type: propertyType, name: propertyName });
+        }
+        return properties;
+    }
+
+    /**
+     * @param {String} fileContent
+     * @returns {*[]}
+     */
     static extractFunctionsFromFileContent(fileContent) {
         const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
         const functions = [];
