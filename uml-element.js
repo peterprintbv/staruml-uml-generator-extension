@@ -3,7 +3,7 @@ const PathHelper = require('./path-helper');
 const fs = require('fs');
 const path = require('path');
 
-class Element {
+class UmlElement {
     static TYPE_MODEL = 'UMLModel';
     static TYPE_CLASS = 'UMLClass';
     static TYPE_PACKAGE = 'UMLPackage';
@@ -11,30 +11,30 @@ class Element {
     static TYPE_ATTRIBUTE = 'UMLPackage';
 
     static availableTypes = [
-        Element.TYPE_MODEL,
-        Element.TYPE_CLASS,
-        Element.TYPE_PACKAGE,
-        Element.TYPE_OPERATION,
-        Element.TYPE_ATTRIBUTE
+        UmlElement.TYPE_MODEL,
+        UmlElement.TYPE_CLASS,
+        UmlElement.TYPE_PACKAGE,
+        UmlElement.TYPE_OPERATION,
+        UmlElement.TYPE_ATTRIBUTE
     ];
 
     parentId = '';
     name = '';
     id = '';
-    type = Element.TYPE_PACKAGE;
+    type = UmlElement.TYPE_PACKAGE;
 
     /**
-     * @type {Element[]}
+     * @type {UmlElement[]}
      */
     ownedElements = [];
 
     /**
-     * @type {Element[]}
+     * @type {UmlElement[]}
      */
     attributes = [];
 
     /**
-     * @type {Element[]}
+     * @type {UmlElement[]}
      */
     operations = [];
 
@@ -44,13 +44,13 @@ class Element {
      * @param {String} type
      * @param {String|null} id
      */
-    constructor(parentId, name, type = Element.TYPE_PACKAGE, id = null) {
-        if ( !Element.availableTypes.includes(type)) {
+    constructor(parentId, name, type = UmlElement.TYPE_PACKAGE, id = null) {
+        if ( !UmlElement.availableTypes.includes(type)) {
             throw new Error(`Given type: ${type} is not a valid type.`);
         }
 
         if (id === null) {
-            id = Element.generateId();
+            id = UmlElement.generateId();
         }
 
         this.parentId = parentId;
@@ -68,14 +68,14 @@ class Element {
     }
 
     /**
-     * @param {Element} element
+     * @param {UmlElement} element
      */
     addOwnedElement(element) {
         this.ownedElements.push(element);
     }
 
     generateFile() {
-        if (this.type === Element.TYPE_CLASS) {
+        if (this.type === UmlElement.TYPE_CLASS) {
             return;
         }
 
@@ -116,7 +116,7 @@ class Element {
             'name': splitName[splitName.length - 1],
         };
 
-        if (this.type === Element.TYPE_MODEL) {
+        if (this.type === UmlElement.TYPE_MODEL) {
             defaultObject.ownedElements = [];
         }
 
@@ -132,4 +132,4 @@ class Element {
     }
 }
 
-module.exports = Element;
+module.exports = UmlElement;

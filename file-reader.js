@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-class MDJPReader {
+class FileReader {
     static excludeFiles = [
         'registration.php',
         'patches',
@@ -20,14 +20,14 @@ class MDJPReader {
         let selectedFiles = [];
 
         files.filter(file => {
-            return !MDJPReader.excludeFiles.includes(file);
+            return !FileReader.excludeFiles.includes(file);
         }).forEach(file => {
             const filePath = path.join(directoryPath, file);
             const stats = fs.statSync(filePath);
 
             if (stats.isDirectory()) {
                 selectedFiles = selectedFiles.concat([filePath]);
-                selectedFiles = selectedFiles.concat(MDJPReader.getFilesForPath(filePath, allowedExtension));
+                selectedFiles = selectedFiles.concat(FileReader.getFilesForPath(filePath, allowedExtension));
             } else {
                 if (allowedExtension.includes(path.extname(filePath))) {
                     selectedFiles.push(filePath);
@@ -48,10 +48,10 @@ class MDJPReader {
         filePaths.forEach(filePath => {
             const directory = path.dirname(filePath);
             const file = path.basename(filePath);
-            const group = MDJPReader.findGroupByDirectory(groupedFiles, directory);
+            const group = FileReader.findGroupByDirectory(groupedFiles, directory);
 
             if (group) {
-                MDJPReader.addToGroup(group, filePath);
+                FileReader.addToGroup(group, filePath);
             } else {
                 groupedFiles.push({directory, files: [{directory: filePath, files: []}]});
             }
@@ -72,7 +72,7 @@ class MDJPReader {
                 return group;
             }
 
-            const subGroup = MDJPReader.findGroupByDirectory(group.files, directory);
+            const subGroup = FileReader.findGroupByDirectory(group.files, directory);
 
             if (subGroup) {
                 return subGroup;
@@ -96,9 +96,9 @@ class MDJPReader {
 
         for (let i = 0; i < group.files.length; i++) {
             const subGroup = group.files[i];
-            MDJPReader.addToGroup(subGroup, filePath);
+            FileReader.addToGroup(subGroup, filePath);
         }
     }
 }
 
-module.exports = MDJPReader;
+module.exports = FileReader;

@@ -1,4 +1,4 @@
-const MDJPReader = require('./mdjp-reader')
+const MDJPReader = require('./file-reader')
 const MDJPGenerator = require('./mdjp-generator')
 
 function main(directoryPath) {

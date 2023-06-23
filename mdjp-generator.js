@@ -1,5 +1,5 @@
 const PathHelper = require('./path-helper')
-const Element = require('./element')
+const Element = require('./uml-element')
 const fs = require('fs');
 const path = require('path');
 
