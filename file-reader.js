@@ -87,7 +87,6 @@ class FileReader {
      */
     static addToGroup(group, filePath) {
         const directory = path.dirname(filePath);
-        const file = path.basename(filePath);
 
         if (directory === group.directory) {
             group.files.push({directory: filePath, files: []});

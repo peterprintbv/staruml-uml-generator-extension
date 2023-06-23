@@ -1,5 +1,5 @@
 const PathHelper = require('./path-helper')
-const Element = require('./uml-element')
+const UmlElement = require('./uml-element')
 const fs = require('fs');
 const path = require('path');
 
@@ -15,28 +15,65 @@ class MDJPGenerator {
             return MDJPGenerator.buildElementForFile(directory, files);
         });
 
-        elements.forEach((element) => element.generateFile());
+        elements.forEach((element) => MDJPGenerator.generateFile(element));
+    }
+
+    /**
+     * @param {UmlElement} element
+     */
+    static generateFile(element)
+    {
+        if (element.type === UmlElement.TYPE_CLASS) {
+            return;
+        }
+
+        const outputDirectory = '/Users/eric/Documents/Docs';
+
+        let directoryPath = PathHelper.buildStarUmlDocsDirectoryForDirectory(element.name);
+        const fileName = directoryPath.splice(-1) + '.mdjps';
+
+        directoryPath = outputDirectory + '/' + directoryPath.join('/');
+        const filePath = path.join(directoryPath, fileName);
+
+        if (!fs.existsSync(directoryPath)) {
+            fs.mkdirSync(directoryPath, { recursive: true });
+        }
+
+        const content = JSON.stringify(element, null, "\t");
+        fs.writeFile(filePath, content, (error) => {
+            if (error) {
+                console.error('Error writing to file:', error);
+            } else {
+                console.log('Content written to file successfully.');
+            }
+        });
+
+        element.ownedElements.forEach((ownedElement) => MDJPGenerator.generateFile(ownedElement));
     }
 
     /**
      * @param {String} directory
      * @param {String[]} files
-     * @param {Element|null} parentElement
-     * @returns {Element}
+     * @param {UmlElement|null} parentElement
+     * @returns {UmlElement}
      */
     static buildElementForFile(directory, files, parentElement = null) {
-        let parentId = Element.generateId();
+        let parentId = UmlElement.generateId();
+        const stats = fs.statSync(directory);
 
-        let type = files.length === 0 ? Element.TYPE_CLASS : Element.TYPE_PACKAGE;
+        let type = UmlElement.TYPE_CLASS;
+
+        if (stats.isDirectory()) {
+            type = UmlElement.TYPE_PACKAGE;
+        }
 
         if (parentElement !== null) {
             parentId = parentElement.id;
         } else {
-            type = Element.TYPE_MODEL;
+            type = UmlElement.TYPE_MODEL;
         }
 
-
-        const element = new Element(parentId, directory, type);
+        const element = new UmlElement(parentId, directory, type);
 
         files.forEach((file) => {
             const {directory, files} = file;

@@ -74,35 +74,6 @@ class UmlElement {
         this.ownedElements.push(element);
     }
 
-    generateFile() {
-        if (this.type === UmlElement.TYPE_CLASS) {
-            return;
-        }
-
-        const outputDirectory = '/Users/eric/Documents/Docs';
-
-        let directoryPath = PathHelper.buildStarUmlDocsDirectoryForDirectory(this.name);
-        const fileName = directoryPath.splice(-1) + '.mdjps';
-
-        directoryPath = outputDirectory + '/' + directoryPath.join('/');
-        const filePath = path.join(directoryPath, fileName);
-
-        if (!fs.existsSync(directoryPath)) {
-            fs.mkdirSync(directoryPath, { recursive: true });
-        }
-
-        const content = JSON.stringify(this, null, "\t");
-        fs.writeFile(filePath, content, (error) => {
-            if (error) {
-                console.error('Error writing to file:', error);
-            } else {
-                console.log('Content written to file successfully.');
-            }
-        });
-
-        this.ownedElements.forEach((ownedElement) => ownedElement.generateFile());
-    }
-
     toJSON() {
         const splitName = this.name.split('/');
 
