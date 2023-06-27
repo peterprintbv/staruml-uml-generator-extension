@@ -64,28 +64,10 @@ class MDJPGenerator {
             MDJPGenerator.handleClassProperties(classProperties, parentElement);
 
             const constants = FileReader.extractConstantsFromFileContent(fileContent);
-            MDJPGenerator.handleConstants(constants, parentElement);
+            MDJPGenerator.handleClassProperties(constants, parentElement);
         } catch (err) {
             app.showErrorDialog.error(err);
         }
-    }
-
-    static handleConstants(constants, parentElement)
-    {
-        console.log(constants);
-        constants.forEach((constant) => {
-            MDJPGenerator.createModelFromOptions({
-                id: UmlElement.TYPE_ATTRIBUTE,
-                parent: parentElement,
-                field: UmlElement.ATTRIBUTES,
-            }, (elem) => {
-                elem.name = constant.name;
-                elem.visibility = constant.visibility;
-                elem.type = constant.type;
-                elem.isStatic = constant.isStatic;
-                elem.defaultValue = constant.value;
-            });
-        });
     }
 
     /**
@@ -105,6 +87,7 @@ class MDJPGenerator {
                 elem.visibility = property.visibility;
                 elem.type = property.type;
                 elem.isStatic = property.isStatic;
+                elem.defaultValue = property.value;
             });
         });
     }
@@ -126,6 +109,7 @@ class MDJPGenerator {
                 elem.name = PathHelper.getCurrentDirectory(functionType.name);
                 elem.visibility = functionType.visibility;
                 elem.isStatic = functionType.isStatic;
+                elem.isAbstract = functionType.isAbstract;
                 elem.documentation = functionType.documentation;
             });
 

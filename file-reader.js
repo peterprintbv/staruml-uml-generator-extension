@@ -133,12 +133,18 @@ class FileReader {
      * @returns {*[]}
      */
     static extractClassPropertiesFromFileContent(fileContent) {
-        const propertyRegex = /(private|protected|public)\s+(static)?\s*\??([\w|\\]+)\s+\$([\w]+)/g;
+        const propertyRegex = /(private|protected|public)\s+(static)?\s*\??([\w|\\]+)\s+\$([\w]+)(?:\s*=\s*([^;]+))?;/g;
         const properties = [];
         let match;
         while ((match = propertyRegex.exec(fileContent)) !== null) {
-            const [, visibility, isStatic, propertyType, propertyName] = match;
-            properties.push({ visibility, isStatic: !!isStatic, type: propertyType, name: propertyName });
+            const [, visibility, isStatic, propertyType, propertyName, defaultValue] = match;
+            properties.push({
+                visibility,
+                isStatic: !!isStatic,
+                type: propertyType,
+                name: propertyName,
+                defaultValue: defaultValue ? defaultValue.trim() : undefined,
+            });
         }
         return properties;
     }
@@ -163,13 +169,14 @@ class FileReader {
      * @returns {*[]}
      */
     static extractFunctionsFromFileContent(fileContent) {
-        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
+        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(abstract\s+)?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
         const functions = [];
         let match;
         while ((match = functionRegex.exec(fileContent)) !== null) {
-            const [, docBlock, visibility, isStatic, name, parameters, returnType] = match;
+            const [, docBlock, isAbstract, visibility, isStatic, name, parameters, returnType] = match;
             const documentation = docBlock.trim();
-            functions.push({ name, parameters, returnType, visibility, isStatic, documentation });
+            const isAbstractFunction = !!isAbstract;
+            functions.push({ name, parameters, returnType, visibility, isStatic, isAbstract: isAbstractFunction, documentation });
         }
         return functions;
     }

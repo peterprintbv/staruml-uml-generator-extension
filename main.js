@@ -7,18 +7,28 @@ const MDJPGenerator = require("./mdjp-generator");
  * @param {string} path
  * @param {Object} options
  */
-function handleGenerate (base, path, options) {
-    app.dialogs.showTextDialog("Select module to generate docs for").then(function ({buttonId, returnValue}) {
-        if (buttonId === 'ok') {
-            const files = MDJPReader.getFilesForPath(returnValue);
-            const groupFiles = MDJPReader.groupFilesByDirectory(files);
-            MDJPGenerator.generateDocs(groupFiles);
+async function handleGenerate (base, path, options) {
+    const { buttonId, returnValue } = await app.dialogs.showTextDialog(
+        'Select module to generate docs for'
+    );
 
-            app.toast.info('Documentation generated successfully!')
-        } else {
-            app.toast.warning('Aborted generation');
-        }
-    })
+    if (buttonId !== 'ok') {
+        app.toast.warning('Aborted generation');
+        return;
+    }
+
+    app.toast.info('Starting documentation generation...');
+
+    try {
+        const files = MDJPReader.getFilesForPath(returnValue);
+        const groupFiles = MDJPReader.groupFilesByDirectory(files);
+        MDJPGenerator.generateDocs(groupFiles);
+    } catch (exception) {
+        app.toast.error('Something went wrong while generating documentation! Exception: ' + exception);
+    }
+
+    app.modelExplorer.rebuild();
+    app.toast.info('Documentation generated successfully!');
 }
 
 function init () {
