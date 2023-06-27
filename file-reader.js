@@ -130,6 +130,15 @@ class FileReader {
 
     /**
      * @param {String} fileContent
+     * @returns {boolean}
+     */
+    static isClassAbstract(fileContent) {
+        const classRegex = /abstract\s+class\s+\w+/g;
+        return classRegex.test(fileContent);
+    }
+
+    /**
+     * @param {String} fileContent
      * @returns {*[]}
      */
     static extractClassPropertiesFromFileContent(fileContent) {

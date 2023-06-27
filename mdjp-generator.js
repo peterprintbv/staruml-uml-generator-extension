@@ -162,6 +162,44 @@ class MDJPGenerator {
     }
 
     /**
+     * @param {String} filePath
+     * @param {Object} parentElement
+     * @param {Object} stats
+     */
+    static handleUmlElement(filePath, parentElement, stats)
+    {
+        let name = PathHelper.getCurrentDirectory(filePath);
+        const activeModel = MDJPGenerator.getActiveModel();
+        const isDirectory = stats.isDirectory();
+
+        let type = UmlElement.TYPE_PACKAGE;
+
+        if (parentElement === null) {
+            parentElement = activeModel;
+            type = UmlElement.TYPE_MODEL;
+        }
+
+        let isAbstract = false;
+
+        if (!isDirectory) {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            type = FileReader.extractUmlTypeByFileContent(fileContent);
+            isAbstract = FileReader.isClassAbstract(fileContent);
+            MDJPGenerator.allowedExtensions.forEach((extension) => {
+                name = name.replace(extension, '');
+            });
+        }
+
+        return MDJPGenerator.createModelFromOptions({
+            id: type,
+            parent: parentElement,
+        }, (elem) => {
+            elem.name = name;
+            elem.isAbstract = isAbstract;
+        });
+    }
+
+    /**
      * @returns {*}
      */
     static getActiveModel()
@@ -178,33 +216,8 @@ class MDJPGenerator {
      */
     static buildElementForFile(directory, files, parentElement = null)
     {
-        const activeModel = MDJPGenerator.getActiveModel();
-
         const stats = fs.statSync(directory);
-        const isDirectory = stats.isDirectory();
-        let name = PathHelper.getCurrentDirectory(directory);
-
-        let type = UmlElement.TYPE_PACKAGE;
-
-        if (parentElement === null) {
-            parentElement = activeModel;
-            type = UmlElement.TYPE_MODEL;
-        }
-
-        if (!isDirectory) {
-            const fileContent = fs.readFileSync(directory, 'utf8');
-            type = FileReader.extractUmlTypeByFileContent(fileContent);
-            MDJPGenerator.allowedExtensions.forEach((extension) => {
-                name = name.replace(extension, '');
-            });
-        }
-
-        const element = MDJPGenerator.createModelFromOptions({
-            id: type,
-            parent: parentElement,
-        }, (elem) => {
-            elem.name = name;
-        });
+        const element = MDJPGenerator.handleUmlElement(directory, parentElement, stats);
 
         this.handleFiles(files, element);
 
