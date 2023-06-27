@@ -62,9 +62,30 @@ class MDJPGenerator {
 
             const classProperties = FileReader.extractClassPropertiesFromFileContent(fileContent);
             MDJPGenerator.handleClassProperties(classProperties, parentElement);
+
+            const constants = FileReader.extractConstantsFromFileContent(fileContent);
+            MDJPGenerator.handleConstants(constants, parentElement);
         } catch (err) {
             app.showErrorDialog.error(err);
         }
+    }
+
+    static handleConstants(constants, parentElement)
+    {
+        console.log(constants);
+        constants.forEach((constant) => {
+            MDJPGenerator.createModelFromOptions({
+                id: UmlElement.TYPE_ATTRIBUTE,
+                parent: parentElement,
+                field: UmlElement.ATTRIBUTES,
+            }, (elem) => {
+                elem.name = constant.name;
+                elem.visibility = constant.visibility;
+                elem.type = constant.type;
+                elem.isStatic = constant.isStatic;
+                elem.defaultValue = constant.value;
+            });
+        });
     }
 
     /**

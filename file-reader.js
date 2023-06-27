@@ -147,6 +147,21 @@ class FileReader {
      * @param {String} fileContent
      * @returns {*[]}
      */
+    static extractConstantsFromFileContent(fileContent) {
+        const constantRegex = /(private|protected|public)?\s*const\s+([\w]+)\s*=\s*([\w\[\]'"\\|:$]+);/g;
+        const constants = [];
+        let match;
+        while ((match = constantRegex.exec(fileContent)) !== null) {
+            const [, visibility, constantName, constantValue] = match;
+            constants.push({ visibility: visibility || 'public', isStatic: true, type: 'const', name: constantName, value: constantValue });
+        }
+        return constants;
+    }
+
+    /**
+     * @param {String} fileContent
+     * @returns {*[]}
+     */
     static extractFunctionsFromFileContent(fileContent) {
         const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
         const functions = [];
