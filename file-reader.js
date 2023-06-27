@@ -1,3 +1,5 @@
+const UmlElement = require('./uml-element')
+
 const fs = require('fs');
 const path = require('path');
 
@@ -101,7 +103,24 @@ class FileReader {
 
     /**
      * @param {String} fileContent
-     * @returns {string}
+     * @returns {String}
+     */
+    static extractUmlTypeByFileContent(fileContent)
+    {
+        if (/class\s+(\w+)/.test(fileContent) || /trait\s+(\w+)/.test(fileContent)) {
+            return UmlElement.TYPE_CLASS;
+        }
+
+        if (/interface\s+(\w+)/.test(fileContent)) {
+            return UmlElement.TYPE_INTERFACE;
+        }
+
+        throw new Error('The file contents do not contain a valid UmlElement.');
+    }
+
+    /**
+     * @param {String} fileContent
+     * @returns {String}
      */
     static extractClassNameFromFileContent(fileContent) {
         const classnameRegex = /class\s+(\w+)/;

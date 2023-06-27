@@ -5,6 +5,11 @@ const fs = require('fs');
 
 class MDJPGenerator {
     static extensionsFolder = 'PeterPrint';
+    static returnKey = 'Return';
+    static returnDirection = 'return';
+    static allowedExtensions = [
+        '.php'
+    ];
 
     /**
      * @param {String[]} groupFiles
@@ -111,9 +116,9 @@ class MDJPGenerator {
                     parent: operation,
                     field: UmlElement.PARAMETERS,
                     }, (elem) => {
-                        elem.name = 'Return';
+                        elem.name = MDJPGenerator.returnKey;
                         elem.type = functionType.returnType;
-                        elem.direction = 'return';
+                        elem.direction = MDJPGenerator.returnDirection;
                     }
                 );
             }
@@ -174,17 +179,19 @@ class MDJPGenerator {
         const isDirectory = stats.isDirectory();
         let name = PathHelper.getCurrentDirectory(directory);
 
-        let type = UmlElement.TYPE_CLASS;
-
-        if (isDirectory) {
-            type = UmlElement.TYPE_PACKAGE;
-        } else {
-            name = name.replace('.php', '');
-        }
+        let type = UmlElement.TYPE_PACKAGE;
 
         if (parentElement === null) {
             parentElement = activeModel;
             type = UmlElement.TYPE_MODEL;
+        }
+
+        if (!isDirectory) {
+            const fileContent = fs.readFileSync(directory, 'utf8');
+            type = FileReader.extractUmlTypeByFileContent(fileContent);
+            MDJPGenerator.allowedExtensions.forEach((extension) => {
+                name = name.replace(extension, '');
+            });
         }
 
         const element = MDJPGenerator.createModelFromOptions({

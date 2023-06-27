@@ -1,6 +1,7 @@
 class UmlElement {
     static TYPE_MODEL = 'UMLModel';
     static TYPE_CLASS = 'UMLClass';
+    static TYPE_INTERFACE = 'UMLInterface';
     static TYPE_PACKAGE = 'UMLPackage';
     static TYPE_OPERATION = 'UMLOperation';
     static TYPE_PARAMETER = 'UMLParameter';
@@ -13,6 +14,7 @@ class UmlElement {
     static availableTypes = [
         UmlElement.TYPE_MODEL,
         UmlElement.TYPE_CLASS,
+        UmlElement.TYPE_INTERFACE,
         UmlElement.TYPE_PACKAGE,
         UmlElement.TYPE_OPERATION,
         UmlElement.TYPE_PARAMETER,

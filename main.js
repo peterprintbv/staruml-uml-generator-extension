@@ -8,15 +8,15 @@ const MDJPGenerator = require("./mdjp-generator");
  * @param {Object} options
  */
 function handleGenerate (base, path, options) {
-    app.dialogs.showTextDialog("Enter absolute path for directory to generate docs for").then(function ({buttonId, returnValue}) {
+    app.dialogs.showTextDialog("Select module to generate docs for").then(function ({buttonId, returnValue}) {
         if (buttonId === 'ok') {
             const files = MDJPReader.getFilesForPath(returnValue);
             const groupFiles = MDJPReader.groupFilesByDirectory(files);
             MDJPGenerator.generateDocs(groupFiles);
 
-            app.dialogs.showInfoDialog('Documentation generated successfully!')
+            app.toast.info('Documentation generated successfully!')
         } else {
-            app.dialogs.showAlertDialog('Aborted generation');
+            app.toast.warning('Aborted generation');
         }
     })
 }
