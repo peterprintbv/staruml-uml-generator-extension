@@ -178,14 +178,16 @@ class FileReader {
      * @returns {*[]}
      */
     static extractFunctionsFromFileContent(fileContent) {
-        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(abstract\s+)?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*(?::\s*([\w|\\]+))?/g;
+        const functionRegex = /(?:(abstract\s+)?(private|protected|public)?\s+)?(static\s+)?function\s+(\w+)\s*\((.*?)\)\s*(?::\s*([?|\w|\\]+(\?)?))?/g;
         const functions = [];
         let match;
         while ((match = functionRegex.exec(fileContent)) !== null) {
-            const [, docBlock, isAbstract, visibility, isStatic, name, parameters, returnType] = match;
-            const documentation = docBlock.trim();
+            const [, isAbstract, visibility, isStatic, name, parameters, returnType] = match;
             const isAbstractFunction = !!isAbstract;
-            functions.push({ name, parameters, returnType, visibility, isStatic, isAbstract: isAbstractFunction, documentation });
+            const isNullableReturn = returnType === undefined ? false : returnType.includes('?');
+            const returnTypeValue = returnType === undefined ? '' : returnType.trim().replace('?', '');
+            const isStaticValue = isStatic === undefined ? false : isStatic.includes('static');
+            functions.push({ name, parameters, returnType: returnTypeValue, visibility, isStaticValue, isAbstract: isAbstractFunction, isNullableReturn });
         }
         return functions;
     }

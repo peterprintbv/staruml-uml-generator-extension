@@ -121,13 +121,19 @@ class UmlGenerator {
             UmlGenerator.handleParameters(functionType.parameters.split(','), operation);
 
             if (functionType.returnType !== undefined) {
+                let returnType = functionType.returnType;
+
+                if (functionType.isNullableReturn) {
+                    returnType = returnType + '|null';
+                }
+
                 UmlGenerator.createModelFromOptions({
                     id: UmlElement.TYPE_PARAMETER,
                     parent: operation,
                     field: UmlElement.PARAMETERS,
                     }, (elem) => {
                         elem.name = UmlGenerator.returnKey;
-                        elem.type = functionType.returnType;
+                        elem.type = returnType;
                         elem.direction = UmlGenerator.returnDirection;
                     }
                 );
