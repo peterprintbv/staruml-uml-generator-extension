@@ -3,7 +3,7 @@ const PathHelper = require('./path-helper')
 const UmlElement = require('./uml-element')
 const fs = require('fs');
 
-class MDJPGenerator {
+class UmlGenerator {
     static extensionsFolder = 'PeterPrint';
     static returnKey = 'Return';
     static returnDirection = 'return';
@@ -17,7 +17,7 @@ class MDJPGenerator {
     static generateDocs(groupFiles) {
         const elements = groupFiles.map((groupFile) => {
             const {directory, files} = groupFile;
-            return MDJPGenerator.buildElementForFile(directory, files);
+            return UmlGenerator.buildElementForFile(directory, files);
         });
 
     }
@@ -42,7 +42,7 @@ class MDJPGenerator {
     {
         files.forEach((file) => {
             const {directory, files} = file;
-            MDJPGenerator.buildElementForFile(directory, files, parentElement);
+            UmlGenerator.buildElementForFile(directory, files, parentElement);
         });
     }
 
@@ -63,13 +63,13 @@ class MDJPGenerator {
                 console.log(fileContent);
                 console.log(functions);
             }
-            MDJPGenerator.handleOperations(functions, parentElement);
+            UmlGenerator.handleOperations(functions, parentElement);
 
             const classProperties = FileReader.extractClassPropertiesFromFileContent(fileContent);
-            MDJPGenerator.handleClassProperties(classProperties, parentElement);
+            UmlGenerator.handleClassProperties(classProperties, parentElement);
 
             const constants = FileReader.extractConstantsFromFileContent(fileContent);
-            MDJPGenerator.handleClassProperties(constants, parentElement);
+            UmlGenerator.handleClassProperties(constants, parentElement);
         } catch (err) {
             app.showErrorDialog.error(err);
         }
@@ -83,7 +83,7 @@ class MDJPGenerator {
     static handleClassProperties(classProperties, parentElement)
     {
         classProperties.forEach((property) => {
-            MDJPGenerator.createModelFromOptions({
+            UmlGenerator.createModelFromOptions({
                 id: UmlElement.TYPE_ATTRIBUTE,
                 parent: parentElement,
                 field: UmlElement.ATTRIBUTES,
@@ -106,7 +106,7 @@ class MDJPGenerator {
     static handleOperations(functions, parentElement)
     {
         functions.forEach((functionType) => {
-            const operation = MDJPGenerator.createModelFromOptions({
+            const operation = UmlGenerator.createModelFromOptions({
                 id: UmlElement.TYPE_OPERATION,
                 parent: parentElement,
                 field: UmlElement.OPERATIONS,
@@ -118,17 +118,17 @@ class MDJPGenerator {
                 elem.documentation = functionType.documentation;
             });
 
-            MDJPGenerator.handleParameters(functionType.parameters.split(','), operation);
+            UmlGenerator.handleParameters(functionType.parameters.split(','), operation);
 
             if (functionType.returnType !== undefined) {
-                MDJPGenerator.createModelFromOptions({
+                UmlGenerator.createModelFromOptions({
                     id: UmlElement.TYPE_PARAMETER,
                     parent: operation,
                     field: UmlElement.PARAMETERS,
                     }, (elem) => {
-                        elem.name = MDJPGenerator.returnKey;
+                        elem.name = UmlGenerator.returnKey;
                         elem.type = functionType.returnType;
-                        elem.direction = MDJPGenerator.returnDirection;
+                        elem.direction = UmlGenerator.returnDirection;
                     }
                 );
             }
@@ -155,7 +155,7 @@ class MDJPGenerator {
 
             name = name.replace('$', '');
 
-            MDJPGenerator.createModelFromOptions({
+            UmlGenerator.createModelFromOptions({
                 id: UmlElement.TYPE_PARAMETER,
                 parent: operationElement,
                 field: UmlElement.PARAMETERS,
@@ -174,7 +174,7 @@ class MDJPGenerator {
     static handleUmlElement(filePath, parentElement, stats)
     {
         let name = PathHelper.getCurrentDirectory(filePath);
-        const activeModel = MDJPGenerator.getActiveModel();
+        const activeModel = UmlGenerator.getActiveModel();
         const isDirectory = stats.isDirectory();
 
         let type = UmlElement.TYPE_PACKAGE;
@@ -190,12 +190,12 @@ class MDJPGenerator {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             type = FileReader.extractUmlTypeByFileContent(fileContent);
             isAbstract = FileReader.isClassAbstract(fileContent);
-            MDJPGenerator.allowedExtensions.forEach((extension) => {
+            UmlGenerator.allowedExtensions.forEach((extension) => {
                 name = name.replace(extension, '');
             });
         }
 
-        return MDJPGenerator.createModelFromOptions({
+        return UmlGenerator.createModelFromOptions({
             id: type,
             parent: parentElement,
         }, (elem) => {
@@ -210,7 +210,7 @@ class MDJPGenerator {
     static getActiveModel()
     {
         const project = app.project.getProject();
-        return project.ownedElements.find((element) => element.name === MDJPGenerator.extensionsFolder);
+        return project.ownedElements.find((element) => element.name === UmlGenerator.extensionsFolder);
     }
 
     /**
@@ -222,7 +222,7 @@ class MDJPGenerator {
     static buildElementForFile(directory, files, parentElement = null)
     {
         const stats = fs.statSync(directory);
-        const element = MDJPGenerator.handleUmlElement(directory, parentElement, stats);
+        const element = UmlGenerator.handleUmlElement(directory, parentElement, stats);
 
         this.handleFiles(files, element);
 
@@ -232,4 +232,4 @@ class MDJPGenerator {
     }
 }
 
-module.exports = MDJPGenerator;
+module.exports = UmlGenerator;

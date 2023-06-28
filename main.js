@@ -1,5 +1,5 @@
-const MDJPReader = require("./file-reader");
-const MDJPGenerator = require("./mdjp-generator");
+const FileReader = require("./file-reader");
+const UmlGenerator = require("./uml-generator");
 
 /**
  *
@@ -8,26 +8,32 @@ const MDJPGenerator = require("./mdjp-generator");
  * @param {Object} options
  */
 async function handleGenerate (base, path, options) {
-    const { buttonId, returnValue } = await app.dialogs.showTextDialog(
-        'Select module to generate docs for'
+    const directories = await app.dialogs.showOpenDialog(
+        'Select module to generate docs for',
+        undefined,
+        [],
+        {
+            properties: [
+                'openDirectory'
+            ]
+        }
     );
 
-    if (buttonId !== 'ok') {
-        app.toast.warning('Aborted generation');
+    if (directories === undefined || directories.length === 0) {
+        app.toast.warning('Aborted generation.');
         return;
     }
 
     app.toast.info('Starting documentation generation...');
 
     try {
-        const files = MDJPReader.getFilesForPath(returnValue);
-        const groupFiles = MDJPReader.groupFilesByDirectory(files);
-        MDJPGenerator.generateDocs(groupFiles);
+        const files = FileReader.getFilesForPath(directories[0]);
+        const groupFiles = FileReader.groupFilesByDirectory(files);
+        UmlGenerator.generateDocs(groupFiles);
     } catch (exception) {
         app.toast.error('Something went wrong while generating documentation! Exception: ' + exception);
     }
 
-    app.modelExplorer.rebuild();
     app.toast.info('Documentation generated successfully!');
 }
 
