@@ -23,22 +23,6 @@ class PathHelper
         let splitDirectories = directory.split('/');
         return splitDirectories[splitDirectories.length - 1];
     }
-
-    /**
-     * @param {String} directory
-     * @returns {String[]}
-     */
-    static buildStarUmlDocsDirectoryForDirectory(directory)
-    {
-        const pathAfterExtension = PathHelper.splitDirectory(directory);
-        return pathAfterExtension.map((pathName, key) => {
-            let prefix = 'umlmodel.';
-            if (key > 1) {
-                prefix = 'umlpackage.';
-            }
-            return prefix + pathName.toLowerCase();
-        });
-    }
 }
 
 module.exports = PathHelper;
