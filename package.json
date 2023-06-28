@@ -4,7 +4,10 @@
   "description": "StarUML UML generator from existing code structure.",
   "homepage": "https://github.com/peterprintbv/staruml-uml-generator-extension.git",
   "version": "1.0.0",
-  "keywords": ["docs", "StarUML"],
+  "keywords": [
+    "docs",
+    "StarUML"
+  ],
   "author": {
     "name": "Peter Print BV",
     "email": "it@peterprint.nl",
@@ -13,5 +16,11 @@
   "license": "MIT",
   "engines": {
     "staruml": ">=3.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }
