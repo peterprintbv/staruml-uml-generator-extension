@@ -57,7 +57,12 @@ class MDJPGenerator {
     {
         try {
             const fileContent = fs.readFileSync(filePath, 'utf8');
+
             const functions = FileReader.extractFunctionsFromFileContent(fileContent);
+            if (parentElement.name === 'AbstractFormElement') {
+                console.log(fileContent);
+                console.log(functions);
+            }
             MDJPGenerator.handleOperations(functions, parentElement);
 
             const classProperties = FileReader.extractClassPropertiesFromFileContent(fileContent);

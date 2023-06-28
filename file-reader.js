@@ -178,7 +178,7 @@ class FileReader {
      * @returns {*[]}
      */
     static extractFunctionsFromFileContent(fileContent) {
-        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(abstract\s+)?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*:\s*([\w|\\]+)/g;
+        const functionRegex = /\/\*\*([\s\S]*?)\*\/[\s\S]*?(abstract\s+)?(private|protected|public)?\s+(static)?\s*function\s+(\w+)\s*\((.*?)\)\s*(?::\s*([\w|\\]+))?/g;
         const functions = [];
         let match;
         while ((match = functionRegex.exec(fileContent)) !== null) {
