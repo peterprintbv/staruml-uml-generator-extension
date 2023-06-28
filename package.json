@@ -1,14 +1,14 @@
 {
-  "name": "staruml.php-docs-generator",
-  "title": "PHP Docs Generator",
-  "description": "PHP Docs generator",
-  "homepage": "https://github.com/elandlord/staruml-php-docs-generator",
+  "name": "staruml.uml-generator",
+  "title": "StarUML UML Generator",
+  "description": "StarUML UML generator from existing code structure.",
+  "homepage": "https://github.com/peterprintbv/staruml-uml-generator-extension.git",
   "version": "1.0.0",
-  "keywords": ["docs"],
+  "keywords": ["docs", "StarUML"],
   "author": {
-    "name": "Eric Landheer",
-    "email": "ericlandheer95@gmail.com",
-    "url": "https://github.com/elandlord"
+    "name": "Peter Print BV",
+    "email": "it@peterprint.nl",
+    "url": "https://github.com/peterprintbv"
   },
   "license": "MIT",
   "engines": {
