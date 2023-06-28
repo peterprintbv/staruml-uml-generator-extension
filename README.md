@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/peterprintbv/staruml-uml-generator-extension/actions/workflows/node.js.yml/badge.svg)](https://github.com/peterprintbv/staruml-uml-generator-extension/actions/workflows/node.js.yml)
+
 # staruml-uml-generator-extension
 A StarUML extension which makes it possible to generate UML based on existing module structure.
 
