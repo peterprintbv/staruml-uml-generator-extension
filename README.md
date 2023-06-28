@@ -11,6 +11,12 @@ It currently supports the following languages:
     - Class properties (abstract, static, visibility modifier)
     - Constants
 
+### TODO
+- Detect return and param types for related UML Elements.
+    - The correct UML Element should be selected based on the namespace of the variable
+- Handle cases where documentation exists already. Show info dialog with overwrite?
+- Replace regex function/variable detection with a more reliable approach (PHP Reflection?)
+
 ### Installation
 
 1. Show **Extension Manager** by selecting **Tools | Extension Manager**
