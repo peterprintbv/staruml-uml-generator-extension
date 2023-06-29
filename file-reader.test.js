@@ -1,4 +1,5 @@
 const fileReader = require('./file-reader');
+const UmlElement = require('./uml-element');
 
 const fileContent = `<?php
 declare(strict_types=1);
@@ -211,4 +212,43 @@ test('detects class is not abstract', () => {
 
     const isAbstract = fileReader.isClassAbstract(fileContentWithAbstractClass);
     expect(isAbstract).toBeFalsy();
+});
+
+test('detects class name', () => {
+    const fileContentWithClassName = `
+        class TestClass extends Test
+        {
+        
+        }
+    `;
+
+    const className = fileReader.extractClassNameFromFileContent(fileContentWithClassName);
+    expect(className).toStrictEqual('TestClass');
+});
+
+test('extract correct UML type', () => {
+    const fileContentClass = `
+        class Test
+        {
+        
+        }
+    `;
+
+    const fileContentTrait = `
+        trait Test
+        {
+        
+        }
+    `;
+
+    const fileContentInterface = `
+        interface Test
+        {
+        
+        }
+    `;
+
+    expect(fileReader.extractUmlTypeByFileContent(fileContentClass)).toStrictEqual(UmlElement.TYPE_CLASS);
+    expect(fileReader.extractUmlTypeByFileContent(fileContentTrait)).toStrictEqual(UmlElement.TYPE_CLASS);
+    expect(fileReader.extractUmlTypeByFileContent(fileContentInterface)).toStrictEqual(UmlElement.TYPE_INTERFACE);
 });
