@@ -101,41 +101,59 @@ class UmlGenerator {
     static handleOperations(functions, parentElement)
     {
         functions.forEach((functionType) => {
-            const operation = UmlGenerator.createModelFromOptions({
-                id: UmlElement.TYPE_OPERATION,
-                parent: parentElement,
-                field: UmlElement.OPERATIONS,
-            }, (elem) => {
-                elem.name = PathHelper.getCurrentDirectory(functionType.name);
-                elem.visibility = functionType.visibility;
-                elem.isStatic = functionType.isStatic;
-                elem.isAbstract = functionType.isAbstract;
-                elem.documentation = functionType.documentation;
-            });
+            const operation = UmlGenerator.createOperation(functionType, parentElement);
 
             UmlGenerator.handleParameters(functionType.parameters.split(','), operation);
 
             if (functionType.returnType !== undefined) {
-                let returnType = functionType.returnType;
-
-                if (functionType.isNullableReturn) {
-                    returnType = returnType + '|null';
-                } else {
-                    returnType = UmlGenerator.findUmlType(returnType);
-                }
-
-                UmlGenerator.createModelFromOptions({
-                    id: UmlElement.TYPE_PARAMETER,
-                    parent: operation,
-                    field: UmlElement.PARAMETERS,
-                    }, (elem) => {
-                        elem.name = UmlGenerator.returnKey;
-                        elem.type = returnType;
-                        elem.direction = UmlGenerator.returnDirection;
-                    }
-                );
+                UmlGenerator.createReturnTypeForOperation(functionType, operation);
             }
         });
+    }
+
+    /**
+     * @param {*} functionType
+     * @param {*} parentElement
+     * @returns {*}
+     */
+    static createOperation(functionType, parentElement) {
+        return UmlGenerator.createModelFromOptions({
+            id: UmlElement.TYPE_OPERATION,
+            parent: parentElement,
+            field: UmlElement.OPERATIONS,
+        }, (elem) => {
+            elem.name = PathHelper.getCurrentDirectory(functionType.name);
+            elem.visibility = functionType.visibility;
+            elem.isStatic = functionType.isStatic;
+            elem.isAbstract = functionType.isAbstract;
+            elem.documentation = functionType.documentation;
+        });
+    }
+
+    /**
+     * @param {*} functionType
+     * @param {*} operation
+     * @returns {*}
+     */
+    static createReturnTypeForOperation(functionType, operation) {
+        let returnType = functionType.returnType;
+
+        if (functionType.isNullableReturn) {
+            returnType = returnType + '|null';
+        } else {
+            returnType = UmlGenerator.findUmlType(returnType);
+        }
+
+        return UmlGenerator.createModelFromOptions({
+                id: UmlElement.TYPE_PARAMETER,
+                parent: operation,
+                field: UmlElement.PARAMETERS,
+            }, (elem) => {
+                elem.name = UmlGenerator.returnKey;
+                elem.type = returnType;
+                elem.direction = UmlGenerator.returnDirection;
+            }
+        );
     }
 
     /**
