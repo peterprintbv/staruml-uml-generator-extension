@@ -32,7 +32,7 @@ abstract class TestClass extends Test
     /**
      * @throws LocalizedException
      */
-    protected function getTestWithException(string $test): AbstractBlock
+    protected static function getTestWithException(string $test): AbstractBlock
     {
 
     }
@@ -69,7 +69,7 @@ const expectedFunctions = [
     {
         isAbstract: false,
         isNullableReturn: false,
-        isStaticValue: false,
+        isStaticValue: true,
         name: 'getTestWithException',
         parameters: 'string $test',
         returnType: 'AbstractBlock',
@@ -77,7 +77,138 @@ const expectedFunctions = [
     }
 ];
 
+test('detects multiple functions in PHP class', () => {
+    const extractedFunctions = fileReader.extractFunctionsFromFileContent(fileContent);
+    expect(extractedFunctions).toStrictEqual(expectedFunctions);
+});
+
 test('detects abstract functions', () => {
-    const functions = fileReader.extractFunctionsFromFileContent(fileContent);
-    expect(functions).toStrictEqual(expectedFunctions);
+    const fileContentWithAbstractFunction = `
+        abstract class TestClass extends Test
+        {
+            abstract public function getTest(): string;
+        }
+    `;
+
+    const abstractFunction = fileReader.extractFunctionsFromFileContent(fileContentWithAbstractFunction);
+    expect(abstractFunction).toStrictEqual([{
+        name: 'getTest',
+        isAbstract: true,
+        isNullableReturn: false,
+        isStaticValue: false,
+        parameters: '',
+        returnType: 'string',
+        visibility: 'public'
+    }]);
+});
+
+test('detects static functions', () => {
+    const fileContentWithStaticFunction = `
+        abstract class TestClass extends Test
+        {
+            public static function getTest(): string
+            {
+            
+            }
+        }
+    `;
+
+    const staticFunction = fileReader.extractFunctionsFromFileContent(fileContentWithStaticFunction);
+    expect(staticFunction).toStrictEqual([{
+        name: 'getTest',
+        isAbstract: false,
+        isNullableReturn: false,
+        isStaticValue: true,
+        parameters: '',
+        returnType: 'string',
+        visibility: 'public'
+    }]);
+});
+
+test('detects all visibilities', () => {
+    const fileContentWithVisibilities = `
+        abstract class TestClass extends Test
+        {
+            public static function getTestPublic(): string
+            {
+            
+            }
+            
+            protected static function getTestProtected(): string
+            {
+            
+            }
+            
+            private static function getTestPrivate(): string
+            {
+            
+            }
+        }
+    `;
+
+    const visibilityFunctions = fileReader.extractFunctionsFromFileContent(fileContentWithVisibilities);
+
+    const structureWithAllVisibilities = ['public', 'protected', 'private'].map((visibility) => {
+        const uppercaseVisibility = visibility.charAt(0).toUpperCase() + visibility.slice(1);
+        return {
+            name: 'getTest' + uppercaseVisibility,
+            isAbstract: false,
+            isNullableReturn: false,
+            isStaticValue: true,
+            parameters: '',
+            returnType: 'string',
+            visibility: visibility
+        };
+    });
+
+    expect(visibilityFunctions).toStrictEqual(structureWithAllVisibilities);
+});
+
+test('detects constants with visibility', () => {
+    const fileContentWithConstants = `
+        abstract class TestClass extends Test
+        {
+            public const TEST_PUBLIC = 'public';
+            protected const TEST_PROTECTED = 'protected';
+            private const TEST_PRIVATE = 'private';
+        }
+    `;
+
+    const constants = fileReader.extractConstantsFromFileContent(fileContentWithConstants);
+
+    const constantsWithVisibility = ['public', 'protected', 'private'].map((visibility) => {
+        return {
+            visibility: visibility,
+            isStatic: true,
+            type: 'const',
+            name: 'TEST_' + visibility.toUpperCase(),
+            value: `'${visibility}'`,
+        };
+    });
+
+    expect(constants).toStrictEqual(constantsWithVisibility);
+});
+
+test('detects class is abstract', () => {
+    const fileContentWithAbstractClass = `
+        abstract class TestClass extends Test
+        {
+        
+        }
+    `;
+
+    const isAbstract = fileReader.isClassAbstract(fileContentWithAbstractClass);
+    expect(isAbstract).toBeTruthy();
+});
+
+test('detects class is not abstract', () => {
+    const fileContentWithAbstractClass = `
+        class TestClass extends Test
+        {
+        
+        }
+    `;
+
+    const isAbstract = fileReader.isClassAbstract(fileContentWithAbstractClass);
+    expect(isAbstract).toBeFalsy();
 });
