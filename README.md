@@ -23,7 +23,7 @@ It currently supports the following languages:
 
 1. Show **Extension Manager** by selecting **Tools | Extension Manager**
 2. Select **Install From URL** button.
-3. Enter URL: `https://github.com/peterprintbv/staruml-uml-generator-extension.git` on input box
+3. Enter URL: `https://github.com/peterprintbv/staruml-uml-generator-extension` on input box
 4. Press Install button.
 
 ### Usage
