@@ -78,6 +78,13 @@ class UmlGenerator {
     static handleClassProperties(classProperties, parentElement)
     {
         classProperties.forEach((property) => {
+            const propertyExists = parentElement.attributes.some((attribute) => attribute.name === property.name);
+
+            if (propertyExists) {
+                console.error('Property with name: ' + property.name + ' already exists on element: ' + parentElement.name);
+                return;
+            }
+
             UmlGenerator.createModelFromOptions({
                 id: UmlElement.TYPE_ATTRIBUTE,
                 parent: parentElement,
@@ -101,6 +108,13 @@ class UmlGenerator {
     static handleOperations(functions, parentElement)
     {
         functions.forEach((functionType) => {
+            const operationExists = parentElement.operations.some((operation) => operation.name === functionType.name);
+
+            if (operationExists) {
+                console.error('Operation with name: ' + functionType.name + ' already exists on element: ' + parentElement.name);
+                return;
+            }
+
             const operation = UmlGenerator.createOperation(functionType, parentElement);
 
             UmlGenerator.handleParameters(functionType.parameters.split(','), operation);
@@ -279,13 +293,12 @@ class UmlGenerator {
 
         let umlElement = PathHelper.getUmlElementByFilePath(directory);
 
-        if (umlElement !== null) {
-            this.handleFiles(files, umlElement);
-            return umlElement;
+        if (umlElement === null) {
+            umlElement = UmlGenerator.handleUmlElement(directory, parentElement, stats);
         }
 
-        umlElement = UmlGenerator.handleUmlElement(directory, parentElement, stats);
         this.handleFiles(files, umlElement);
+
         if (stats.isFile()) {
             this.handleFile(directory, umlElement);
         }
