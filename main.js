@@ -1,5 +1,6 @@
 const FileReader = require("./file-reader");
 const UmlGenerator = require("./uml-generator");
+const Settings = require("./settings");
 
 /**
  *
@@ -18,7 +19,7 @@ async function handleGenerate (base, path, options) {
     app.toast.info('Starting documentation generation...');
 
     try {
-        const files = FileReader.getFilesForPath(directory);
+        const files = FileReader.getFilesForPath(directory, Settings.getAllowedExtensions());
         const groupFiles = FileReader.groupFilesByDirectory(files);
         UmlGenerator.generateDocs(groupFiles);
     } catch (exception) {
@@ -52,7 +53,9 @@ async function selectDirectory() {
 }
 
 function init () {
-    app.commands.register('docs:generate', handleGenerate);
+    app.commands.register('docs:generate', async (base, path, options) => {
+        handleGenerate(base, path, options);
+    });
 }
 
 exports.init = init;

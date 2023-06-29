@@ -1,15 +1,12 @@
-const FileReader = require('./file-reader')
-const PathHelper = require('./path-helper')
-const UmlElement = require('./uml-element')
+const FileReader = require('./file-reader');
+const PathHelper = require('./path-helper');
+const UmlElement = require('./uml-element');
+const Settings = require('./settings');
 const fs = require('fs');
 
 class UmlGenerator {
-    static extensionsFolder = 'PeterPrint';
     static returnKey = 'Return';
     static returnDirection = 'return';
-    static allowedExtensions = [
-        '.php'
-    ];
 
     /**
      * @param {String[]} groupFiles
@@ -36,6 +33,7 @@ class UmlGenerator {
 
     /**
      * @param {String[]} files
+     * @param {Object} parentElement
      */
     static handleFiles(files, parentElement)
     {
@@ -50,7 +48,7 @@ class UmlGenerator {
      * Elements are created dynamically based on the functions and properties the file contains.
      *
      * @param {String} filePath
-     * @param {*} parentElement
+     * @param {Object} parentElement
      */
     static handleFile(filePath, parentElement)
     {
@@ -58,10 +56,6 @@ class UmlGenerator {
             const fileContent = fs.readFileSync(filePath, 'utf8');
 
             const functions = FileReader.extractFunctionsFromFileContent(fileContent);
-            if (parentElement.name === 'AbstractFormElement') {
-                console.log(fileContent);
-                console.log(functions);
-            }
             UmlGenerator.handleOperations(functions, parentElement);
 
             const classProperties = FileReader.extractClassPropertiesFromFileContent(fileContent);
@@ -77,7 +71,7 @@ class UmlGenerator {
     /**
      * Handles the attributes and create Attributes model from options. Sets the Operation as parent.
      * @param {*[]} classProperties
-     * @param {*} parentElement
+     * @param {Object} parentElement
      */
     static handleClassProperties(classProperties, parentElement)
     {
@@ -100,7 +94,7 @@ class UmlGenerator {
      * Handles the operation and create Operations model from options. Sets the Model/Package as parent.
      *
      * @param {*[]} functions
-     * @param {*} parentElement
+     * @param {Object} parentElement
      */
     static handleOperations(functions, parentElement)
     {
@@ -195,7 +189,9 @@ class UmlGenerator {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             type = FileReader.extractUmlTypeByFileContent(fileContent);
             isAbstract = FileReader.isClassAbstract(fileContent);
-            UmlGenerator.allowedExtensions.forEach((extension) => {
+
+            const allowedExtension = Settings.getAllowedExtensions();
+            Settings.getAllowedExtensions().forEach((extension) => {
                 name = name.replace(extension, '');
             });
         }
@@ -215,7 +211,7 @@ class UmlGenerator {
     static getActiveModel()
     {
         const project = app.project.getProject();
-        return project.ownedElements.find((element) => element.name === UmlGenerator.extensionsFolder);
+        return project.ownedElements.find((element) => element.name === Settings.getActiveModel());
     }
 
     /**

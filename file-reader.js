@@ -1,37 +1,31 @@
 const UmlElement = require('./uml-element')
-
+const Settings = require('./settings');
 const fs = require('fs');
 const path = require('path');
 
 class FileReader {
-    static excludeFiles = [
-        'registration.php',
-        'patches',
-        'etc'
-    ];
-
     /**
      *
      * @param {string} directoryPath
-     * @param {String[]} allowedExtension
+     * @param {String[]} allowedExtensions
      * @returns {String[]}
      */
-    static getFilesForPath(directoryPath, allowedExtension = ['.php']) {
+    static getFilesForPath(directoryPath, allowedExtensions = []) {
         const files = fs.readdirSync(directoryPath);
 
         let selectedFiles = [];
 
         files.filter(file => {
-            return !FileReader.excludeFiles.includes(file);
+            return !Settings.getExcludeFiles().includes(file);
         }).forEach(file => {
             const filePath = path.join(directoryPath, file);
             const stats = fs.statSync(filePath);
 
             if (stats.isDirectory()) {
                 selectedFiles = selectedFiles.concat([filePath]);
-                selectedFiles = selectedFiles.concat(FileReader.getFilesForPath(filePath, allowedExtension));
+                selectedFiles = selectedFiles.concat(FileReader.getFilesForPath(filePath, allowedExtensions));
             } else {
-                if (allowedExtension.includes(path.extname(filePath))) {
+                if (allowedExtensions.includes(path.extname(filePath))) {
                     selectedFiles.push(filePath);
                 }
             }
@@ -115,7 +109,7 @@ class FileReader {
             return UmlElement.TYPE_INTERFACE;
         }
 
-        throw new Error('The file contents do not contain a valid UmlElement.');
+        throw new Error('The file content does not contain a valid UmlElement.');
     }
 
     /**
