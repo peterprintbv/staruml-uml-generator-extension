@@ -21,12 +21,14 @@ async function handleGenerate (base, path, options) {
     try {
         const files = FileReader.getFilesForPath(directory, Settings.getAllowedExtensions());
         const groupFiles = FileReader.groupFilesByDirectory(files);
-        UmlGenerator.generateDocs(groupFiles);
+
+        setImmediate(() => {
+            UmlGenerator.generateDocs(groupFiles);
+            app.toast.info('Documentation generated successfully!');
+        });
     } catch (exception) {
         app.toast.error('Something went wrong while generating documentation! Exception: ' + exception);
     }
-
-    app.toast.info('Documentation generated successfully!');
 }
 
 /**
