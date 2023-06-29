@@ -15,11 +15,10 @@ class UmlGenerator {
      * @param {String[]} groupFiles
      */
     static generateDocs(groupFiles) {
-        const elements = groupFiles.map((groupFile) => {
+        groupFiles.forEach((groupFile) => {
             const {directory, files} = groupFile;
             return UmlGenerator.buildElementForFile(directory, files);
         });
-
     }
 
     /**
