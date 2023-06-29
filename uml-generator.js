@@ -276,12 +276,18 @@ class UmlGenerator {
     static buildElementForFile(directory, files, parentElement = null)
     {
         const stats = fs.statSync(directory);
-        const element = UmlGenerator.handleUmlElement(directory, parentElement, stats);
 
-        this.handleFiles(files, element);
+        let umlElement = PathHelper.getUmlElementByFilePath(directory);
 
+        if (umlElement !== null) {
+            this.handleFiles(files, umlElement);
+            return umlElement;
+        }
+
+        umlElement = UmlGenerator.handleUmlElement(directory, parentElement, stats);
+        this.handleFiles(files, umlElement);
         if (stats.isFile()) {
-            this.handleFile(directory, element);
+            this.handleFile(directory, umlElement);
         }
     }
 }
