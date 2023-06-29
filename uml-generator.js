@@ -158,26 +158,15 @@ class UmlGenerator {
 
     /**
      * @param {String[]} parameters
-     * @param {*} operationElement
+     * @param {Object} operationElement
      */
     static handleParameters(parameters, operationElement)
     {
         parameters.forEach((parameter) => {
-            let [type, name] = parameter.split(' ').filter((param) => param !== '');
-
-            if (name === undefined) {
-                name = type;
-                type = null;
-            }
+            let [type, name] = UmlGenerator.extractTypeAndNameFromParameter(parameter);
 
             if (name === undefined && type === null) {
                 return;
-            }
-
-            name = name.replace('$', '');
-
-            if (type !== null) {
-                type = UmlGenerator.findUmlType(type);
             }
 
             UmlGenerator.createModelFromOptions({
@@ -185,14 +174,33 @@ class UmlGenerator {
                 parent: operationElement,
                 field: UmlElement.PARAMETERS,
             }, (elem) => {
-                elem.name = name;
+                elem.name = name.replace('$', '');
                 elem.type = type;
             });
         });
     }
 
     /**
-     * @param {String}
+     * @param {String} parameter
+     * @returns {*[]}
+     */
+    static extractTypeAndNameFromParameter(parameter) {
+        let [type, name] = parameter.split(' ').filter((param) => param !== '');
+
+        if (name === undefined) {
+            name = type;
+            type = null;
+        }
+
+        if (type !== null) {
+            type = UmlGenerator.findUmlType(type);
+        }
+
+        return [type, name];
+    }
+
+    /**
+     * @param {String} type
      */
     static findUmlType(type) {
         if (Settings.getDataTypes().includes(type)) {
@@ -236,7 +244,6 @@ class UmlGenerator {
             type = FileReader.extractUmlTypeByFileContent(fileContent);
             isAbstract = FileReader.isClassAbstract(fileContent);
 
-            const allowedExtension = Settings.getAllowedExtensions();
             Settings.getAllowedExtensions().forEach((extension) => {
                 name = name.replace(extension, '');
             });

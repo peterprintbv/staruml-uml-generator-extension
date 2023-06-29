@@ -12,11 +12,11 @@ async function handleGenerate (base, path, options) {
     const directory = await selectDirectory();
 
     if (directory === null) {
-        app.toast.warning('No directory selected. Aborted generating docs.');
+        app.toast.warning('No directory selected. Aborted generating documentation.');
         return;
     }
 
-    app.toast.info('Starting documentation generation...');
+    app.toast.info('Generating documentation...');
 
     try {
         const files = FileReader.getFilesForPath(directory, Settings.getAllowedExtensions());
