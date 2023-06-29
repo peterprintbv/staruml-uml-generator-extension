@@ -33,3 +33,9 @@ It currently supports the following languages:
 3. In **Tools | Generate docs**, select the option **Generate docs**.
 4. Select and **open** the directory you want to generate docs for.
 5. After a short while, your UML should have been generated.
+
+### Preferences
+
+You can override the default preferences in the **StarUML | Settings** screen.
+
+![alt text](docs/preferences.png)
