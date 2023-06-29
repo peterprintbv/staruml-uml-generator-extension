@@ -23,6 +23,12 @@
       "description": "Provide a comma-separated list of extensions. If the extension is in this list, the file will be generated.",
       "type": "string",
       "default": ".php"
+    },
+    "uml.gen.dataTypes": {
+      "text": "DataTypes (comma-separated)",
+      "description": "Provide a comma-separated list of primitive data types. If the data type is in this list, it will not try to find the UML element.",
+      "type": "string",
+      "default": "bool,int,float,string,array,object,callable,iterable,resource,null,void,mixed"
     }
   }
 }

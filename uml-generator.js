@@ -118,6 +118,8 @@ class UmlGenerator {
 
                 if (functionType.isNullableReturn) {
                     returnType = returnType + '|null';
+                } else {
+                    returnType = UmlGenerator.findUmlType(returnType);
                 }
 
                 UmlGenerator.createModelFromOptions({
@@ -154,6 +156,10 @@ class UmlGenerator {
 
             name = name.replace('$', '');
 
+            if (type !== null) {
+                type = UmlGenerator.findUmlType(type);
+            }
+
             UmlGenerator.createModelFromOptions({
                 id: UmlElement.TYPE_PARAMETER,
                 parent: operationElement,
@@ -163,6 +169,26 @@ class UmlGenerator {
                 elem.type = type;
             });
         });
+    }
+
+    /**
+     * @param {String}
+     */
+    static findUmlType(type) {
+        if (Settings.getDataTypes().includes(type)) {
+            return type;
+        }
+
+        const existingUmlElements = app.repository.select(type);
+
+        if (existingUmlElements.length === 1) {
+            type = existingUmlElements[0];
+        } else {
+            console.error('Multiple or no existing UML Elements found for: ' + type);
+            type = 'TODO:' + type;
+        }
+
+        return type;
     }
 
     /**

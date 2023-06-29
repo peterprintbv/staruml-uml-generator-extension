@@ -19,6 +19,13 @@ class Settings {
     static getAllowedExtensions() {
         return app.preferences.get('uml.gen.allowedExtensions').split(',');
     }
+
+    /**
+     * @returns {String[]}
+     */
+    static getDataTypes() {
+        return app.preferences.get('uml.gen.dataTypes').split(',');
+    }
 }
 
 module.exports = Settings;
