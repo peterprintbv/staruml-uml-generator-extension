@@ -25,10 +25,12 @@ class UmlGenerator {
      */
     static createModelFromOptions(options, callback)
     {
-        return app.factory.createModel({
+        const model = app.factory.createModel({
             ...options,
             modelInitializer: callback
         });
+        app.modelExplorer.$viewContent.stop();
+        return model;
     }
 
     /**

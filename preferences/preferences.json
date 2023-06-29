@@ -16,7 +16,7 @@
       "text": "Exclude Files (comma-separated)",
       "description": "Provide a comma-separated list of strings. If the file path includes ANY of the strings, the file will be excluded for generation.",
       "type": "string",
-      "default": "registration.php,patches,etc,Test"
+      "default": "registration.php,patches,etc,Test,view"
     },
     "uml.gen.allowedExtensions": {
       "text": "Allowed extensions (comma-separated)",
